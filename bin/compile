@@ -72,5 +72,5 @@ cd py2cairo
 PKG_CONFIG_PATH=$BUILD_DIR/.heroku/vendor/lib/pkgconfig
 
 LDFLAGS="-lm -ldl -lutil" ./waf configure --prefix=$BUILD_DIR/.heroku/python
-python waf build
-python waf install
+# python waf build
+# python waf install

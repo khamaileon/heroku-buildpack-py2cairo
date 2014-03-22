@@ -59,9 +59,9 @@ else
 fi
 
 mkdir -p $BUILD_DIR/.heroku/vendor
-cp -r $BUILD_DIR/vendor/pixman-0.32.4/* $BUILD_DIR/.heroku/vendor
-cp -r $BUILD_DIR/vendor/freetype-2.5.2/* $BUILD_DIR/.heroku/vendor
-cp -r $BUILD_DIR/vendor/cairo-1.12.16/* $BUILD_DIR/.heroku/vendor
+cp -r $CACHE_DIR/vendor/pixman-0.32.4/* $BUILD_DIR/.heroku/vendor
+cp -r $CACHE_DIR/vendor/freetype-2.5.2/* $BUILD_DIR/.heroku/vendor
+cp -r $CACHE_DIR/vendor/cairo-1.12.16/* $BUILD_DIR/.heroku/vendor
 
 echo "-----> Installing py2cairo"
 
@@ -69,7 +69,7 @@ cd /tmp
 git clone git://git.cairographics.org/git/py2cairo
 cd py2cairo
 
-PKG_CONFIG_PATH=$BUILD_DIR/vendor/pixman-0.32.4/lib/pkgconfig:$BUILD_DIR/vendor/cairo-1.12.16/lib/pkgconfig
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$BUILD_DIR/vendor/cairo-1.12.16/lib/pkgconfig
 
 LDFLAGS="-lm -ldl -lutil" ./waf configure --prefix=$BUILD_DIR/.heroku/python
 python waf build

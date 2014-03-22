@@ -69,7 +69,7 @@ cd /tmp
 git clone git://git.cairographics.org/git/py2cairo
 cd py2cairo
 
-PKG_CONFIG_PATH=$BUILD_DIR/.heroku/vendor/lib/pkgconfig
+PKG_CONFIG_PATH=PKG_CONFIG_PATH:$BUILD_DIR/.heroku/vendor/lib/pkgconfig
 
 LDFLAGS="-lm -ldl -lutil" ./waf configure --prefix=$BUILD_DIR/.heroku/python
 # python waf build

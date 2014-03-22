@@ -1,0 +1,76 @@
+#!/bin/sh
+# bin/compile BUILD_DIR CACHE_DIR
+
+# Paths
+BUILD_DIR=$1
+CACHE_DIR=$2
+
+mkdir -p $CACHE_DIR/vendor
+mkdir -p $CACHE_DIR/vendor
+
+echo "-----> Installing Pixman"
+
+if [ -d "$CACHE_DIR/vendor/pixman-0.32.4" ]; then
+    cp -r $CACHE_DIR/vendor/pixman-0.32.4 $BUILD_DIR/vendor
+else
+    cd /tmp
+    curl -LO http://cairographics.org/releases/pixman-0.32.4.tar.gz
+    tar -zxf pixman-0.32.4.tar.gz
+    cd pixman-0.32.4/
+    ./configure --prefix=$BUILD_DIR/vendor/pixman-0.32.4
+    make
+    make install
+
+    cp -r $BUILD_DIR/vendor/pixman-0.32.4 $CACHE_DIR/vendor
+fi
+
+echo "-----> Installing FreeType"
+
+if [ -d "$CACHE_DIR/vendor/freetype-2.5.2" ]; then
+    cp -r $CACHE_DIR/vendor/freetype-2.5.2 $BUILD_DIR/vendor
+else
+    cd /tmp
+    curl -LO http://download.savannah.gnu.org/releases/freetype/freetype-2.5.2.tar.bz2
+    tar -jxf freetype-2.5.2.tar.bz2
+    cd freetype-2.5.2/
+    ./configure --prefix=$BUILD_DIR/vendor/freetype-2.5.2
+    make
+    make install
+
+    cp -r $BUILD_DIR/vendor/freetype-2.5.2 $CACHE_DIR/vendor
+fi
+
+echo "-----> Installing Cairo"
+
+export PKG_CONFIG_PATH=$BUILD_DIR/vendor/pixman-0.32.4/lib/pkgconfig:$BUILD_DIR/vendor/freetype-2.5.2/lib/pkgconfig
+
+if [ -d "$CACHE_DIR/vendor/cairo-1.12.16" ]; then
+    cp -r $CACHE_DIR/vendor/cairo-1.12.16 $BUILD_DIR/vendor
+else
+    cd /tmp
+    curl -LO http://cairographics.org/releases/cairo-1.12.16.tar.xz
+    tar -xf cairo-1.12.16.tar.xz
+    cd cairo-1.12.16/
+    ./configure --prefix=$BUILD_DIR/vendor/cairo-1.12.16
+    make
+    make install
+
+    cp -r $BUILD_DIR/vendor/cairo-1.12.16 $CACHE_DIR/vendor
+fi
+
+mkdir -p $BUILD_DIR/.heroku/vendor
+cp -r $CACHE_DIR/vendor/pixman-0.32.4/* $BUILD_DIR/.heroku/vendor
+cp -r $CACHE_DIR/vendor/freetype-2.5.2/* $BUILD_DIR/.heroku/vendor
+cp -r $CACHE_DIR/vendor/cairo-1.12.16/* $BUILD_DIR/.heroku/vendor
+
+echo "-----> Installing py2cairo"
+
+cd /tmp
+git clone git://git.cairographics.org/git/py2cairo
+cd py2cairo
+
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$BUILD_DIR/vendor/cairo-1.12.16/lib/pkgconfig
+
+LDFLAGS="-lm -ldl -lutil" ./waf configure --prefix=$BUILD_DIR/.heroku/python
+python waf build
+python waf install
